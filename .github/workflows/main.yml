@@ -1,4 +1,4 @@
-name: Build and deploy Node.js app to Azure Web App 
+name: Build and Deploy Node.js App to Azure Web App - teamwebappFrontend
 
 on:
   push:
@@ -38,14 +38,14 @@ jobs:
 
       - name: Ensure correct directory structure
         run: |
-          mkdir -p site/wwwroot/build
-          mv build/* site/wwwroot/build/
+          mkdir -p site/wwwroot
+          mv build site/wwwroot/
 
       - name: Check disk space before zipping
         run: df -h
 
       - name: Zip build folder for deployment
-        run: zip -r release.zip site/wwwroot
+        run: cd site && zip -r ../release.zip wwwroot
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -70,15 +70,15 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip -d ./build
+        run: unzip release.zip -d .
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'middlewaretalents'
+          app-name: 'middlewaretalents' 
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: './build'
+          package: './wwwroot'
 
       - name: Clear disk space after deployment
-        run: rm -rf ./build release.zip
+        run: rm -rf wwwroot release.zip
